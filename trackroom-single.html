@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Room — Session Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   TRACK ROOM — design tokens
+   ========================================================================== */
+:root {
+  --bg:          #14181C;
+  --surface:     #1C2227;
+  --surface-2:   #232A30;
+  --border:      #2C343B;
+  --text:        #EDEEF0;
+  --text-muted:  #8B95A0;
+  --accent:      #E8A33D;
+  --accent-dim:  #6E5426;
+  --accent-2:    #4FC3C0;
+  --danger:      #E2574C;
+  --success:     #57C785;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px;
+  --max-width: 1180px;
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.28);
+  --shadow-pop:  0 12px 32px rgba(0,0,0,0.45);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+  overflow-x: hidden;
+}
+h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; color: var(--text); }
+p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--font-body); cursor: pointer; }
+img { max-width: 100%; display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); color: var(--text-muted); font-size: 0.9em; }
+[hidden] { display: none !important; }
+
+/* Navbar */
+.navbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(20, 24, 28, 0.85); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.navbar__inner {
+  max-width: var(--max-width); margin: 0 auto; padding: var(--space-3) var(--space-5);
+  display: flex; align-items: center; gap: var(--space-6);
+}
+.navbar__brand {
+  font-family: var(--font-display); font-weight: 700; font-size: 1.05rem;
+  letter-spacing: 0.04em; display: flex; align-items: center; gap: var(--space-2);
+  white-space: nowrap; background: none; border: none; color: var(--text); padding: 0;
+}
+.brand__accent { color: var(--accent); }
+.brand__mark {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.navbar__nav { display: flex; gap: var(--space-5); flex: 1; }
+.nav__link {
+  font-size: 0.92rem; color: var(--text-muted); font-weight: 500;
+  padding: var(--space-2) 0; border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  background: none; border-top: none; border-left: none; border-right: none;
+}
+.nav__link:hover { color: var(--text); }
+.nav__link--active { color: var(--text); border-bottom-color: var(--accent); }
+.navbar__toggle {
+  display: none; flex-direction: column; justify-content: center; gap: 5px;
+  width: 36px; height: 36px; background: transparent; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 0;
+}
+.navbar__toggle span { display: block; height: 2px; margin: 0 7px; background: var(--text); border-radius: 2px; }
+
+.navbar__auth { display: flex; align-items: center; gap: var(--space-3); margin-left: auto; padding-left: var(--space-5); }
+.navbar__user { font-size: 0.88rem; color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap; }
+.navbar__user strong { color: var(--text); font-weight: 600; }
+
+/* Buttons */
+.btn {
+  font-weight: 600; font-size: 0.92rem; border-radius: var(--radius-sm);
+  border: 1px solid transparent; padding: 11px 20px;
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn--sm { padding: 7px 14px; font-size: 0.82rem; }
+.btn--primary { background: var(--accent); color: #1A1200; }
+.btn--primary:hover { background: #F0AE52; }
+.btn--secondary { background: var(--accent-2); color: #06201F; }
+.btn--secondary:hover { background: #69D1CE; }
+.btn--ghost { background: transparent; border-color: var(--border); color: var(--text); }
+.btn--ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn--danger { background: transparent; border-color: var(--danger); color: var(--danger); }
+.btn--danger:hover { background: rgba(226, 87, 76, 0.12); }
+.btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+.button-row { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+/* Layout */
+main { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-5); }
+.section { padding: var(--space-8) 0; border-top: 1px solid var(--border); }
+.section__head { margin-bottom: var(--space-6); max-width: 560px; }
+.section__head h2 { font-size: 1.5rem; margin-bottom: var(--space-2); }
+.section__head p { color: var(--text-muted); }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent-2); margin-bottom: var(--space-3);
+}
+
+/* Dashboard header + stats */
+.dashboard { padding: var(--space-8) 0 var(--space-6); }
+.dashboard__heading h1 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); line-height: 1.15; max-width: 700px; }
+.dashboard__lede { color: var(--text-muted); margin-top: var(--space-4); max-width: 520px; font-size: 1.02rem; }
+.stat-grid { margin-top: var(--space-7); display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-card); }
+.stat-card__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
+.stat-card__label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+.stat-card__delta { font-family: var(--font-mono); font-size: 0.78rem; padding: 2px 7px; border-radius: 999px; }
+.stat-card__delta--up { color: var(--success); background: rgba(87,199,133,0.12); }
+.stat-card__delta--down { color: var(--danger); background: rgba(226,87,76,0.12); }
+.stat-card__value { font-family: var(--font-mono); font-size: 2.1rem; font-weight: 600; margin-bottom: var(--space-4); }
+.meter { display: flex; gap: 3px; }
+.meter__seg { height: 8px; flex: 1; background: var(--surface-2); border-radius: 2px; }
+.meter__seg--on { background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
+
+/* Project cards */
+.card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+.project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-card); }
+.project-card__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
+.project-card__time { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); }
+.project-card h3 { font-size: 1.15rem; margin-bottom: var(--space-1); }
+.project-card__artist { color: var(--text-muted); font-size: 0.88rem; margin-bottom: var(--space-4); }
+.tag { font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
+.tag--mix { background: rgba(232,163,61,0.14); color: var(--accent); }
+.tag--master { background: rgba(79,195,192,0.14); color: var(--accent-2); }
+.tag--review { background: rgba(226,87,76,0.14); color: var(--danger); }
+.tag--record { background: rgba(87,199,133,0.14); color: var(--success); }
+.progress { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-bottom: var(--space-3); }
+.progress__fill { height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius: 999px; }
+.project-card__foot { display: flex; justify-content: space-between; align-items: center; }
+.project-card__pct { font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); }
+
+/* Form card (new session request) */
+.form-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: var(--space-6); max-width: 640px; box-shadow: var(--shadow-card);
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+.field { margin-bottom: var(--space-4); }
+.field label { display: block; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); margin-bottom: var(--space-2); }
+.field input[type="text"], .field input[type="date"], .field input[type="tel"],
+.field input[type="password"], .field select, .field textarea {
+  width: 100%; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); padding: 11px 12px; font-family: var(--font-body); font-size: 0.95rem;
+  transition: border-color 0.15s ease;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); outline: none; }
+.field textarea { resize: vertical; min-height: 90px; }
+.field--checkbox { display: flex; align-items: center; gap: var(--space-2); }
+.field--checkbox label { margin: 0; color: var(--text); }
+.field--checkbox input { accent-color: var(--accent); width: 16px; height: 16px; }
+.form-card__actions {
+  display: flex; justify-content: flex-end; gap: var(--space-3); margin-top: var(--space-5);
+  border-top: 1px solid var(--border); padding-top: var(--space-5);
+}
+
+/* Table */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow-x: auto; box-shadow: var(--shadow-card); }
+.data-table { width: 100%; border-collapse: collapse; min-width: 640px; }
+.data-table th {
+  text-align: left; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-muted); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border); font-weight: 600;
+}
+.data-table td { padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: var(--surface-2); }
+.status { font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.status--progress { background: rgba(232,163,61,0.14); color: var(--accent); }
+.status--done { background: rgba(87,199,133,0.14); color: var(--success); }
+.status--review { background: rgba(226,87,76,0.14); color: var(--danger); }
+.status--scheduled { background: rgba(79,195,192,0.14); color: var(--accent-2); }
+
+/* Auth pages (login / register) */
+.auth-page { min-height: calc(100vh - 65px); display: flex; align-items: center; justify-content: center; padding: var(--space-7) var(--space-4); }
+.auth-card { width: 100%; max-width: 440px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-pop); }
+.auth-card__head { margin-bottom: var(--space-5); }
+.auth-card__head h1 { font-size: 1.5rem; margin-bottom: var(--space-2); }
+.auth-card__head p { color: var(--text-muted); font-size: 0.9rem; }
+.auth-card__foot { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border); font-size: 0.88rem; color: var(--text-muted); text-align: center; }
+.auth-card__foot button { background: none; border: none; padding: 0; color: var(--accent); font-weight: 600; font-size: inherit; cursor: pointer; }
+.auth-card__foot button:hover { text-decoration: underline; }
+
+.banner { border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4); font-size: 0.88rem; font-weight: 500; margin-bottom: var(--space-4); border: 1px solid transparent; }
+.banner--error { background: rgba(226,87,76,0.12); border-color: rgba(226,87,76,0.4); color: #FF9992; }
+.banner--success { background: rgba(87,199,133,0.12); border-color: rgba(87,199,133,0.4); color: #8CE3AE; }
+
+.field-error { display: block; min-height: 1.1em; font-size: 0.78rem; color: #FF9992; margin-top: var(--space-1); }
+.field input.is-invalid, .field select.is-invalid { border-color: var(--danger); }
+.field input.is-valid, .field select.is-valid { border-color: var(--success); }
+.field--checkbox.field--terms { align-items: flex-start; margin-bottom: var(--space-1); }
+.field--checkbox.field--terms input { margin-top: 3px; }
+.field--checkbox.field--terms label { font-size: 0.85rem; }
+#regTermsError { margin-bottom: var(--space-4); }
+.auth-card .form-card__actions { justify-content: stretch; border-top: none; padding-top: 0; margin-top: var(--space-2); }
+.auth-card .btn--primary { width: 100%; }
+
+/* Footer */
+.footer { border-top: 1px solid var(--border); margin-top: var(--space-7); }
+.footer__inner { max-width: var(--max-width); margin: 0 auto; padding: var(--space-5); display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); color: var(--text-muted); font-size: 0.85rem; }
+.footer__meta { font-family: var(--font-mono); font-size: 0.78rem; }
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .card-grid { grid-template-columns: 1fr; }
+  .navbar__nav { gap: var(--space-4); }
+}
+
+/* Mobile */
+@media (max-width: 720px) {
+  main { padding: 0 var(--space-4); }
+  .navbar__nav {
+    position: absolute; top: 100%; left: 0; right: 0; background: var(--surface);
+    border-bottom: 1px solid var(--border); flex-direction: column; gap: 0;
+    padding: var(--space-2) 0; display: none;
+  }
+  .navbar__nav.is-open { display: flex; }
+  .nav__link { padding: var(--space-3) var(--space-5); border-bottom: none; border-left: 2px solid transparent; }
+  .nav__link--active { border-left-color: var(--accent); background: var(--surface-2); }
+  .navbar__toggle { display: flex; }
+  .navbar__auth { margin-left: 0; padding: var(--space-4) var(--space-5) var(--space-3); border-top: 1px solid var(--border); justify-content: space-between; }
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  .stat-card__value { font-size: 1.7rem; }
+  .form-row { grid-template-columns: 1fr; }
+  .section { padding: var(--space-6) 0; }
+  .dashboard { padding-top: var(--space-6); }
+  .data-table thead { display: none; }
+  .data-table, .data-table tbody, .data-table tr, .data-table td { display: block; width: 100%; }
+  .data-table tr { border-bottom: 1px solid var(--border); padding: var(--space-4) var(--space-5); }
+  .data-table td { border-bottom: none; padding: var(--space-1) 0; display: flex; justify-content: space-between; gap: var(--space-3); }
+  .data-table td::before { content: attr(data-label); font-size: 0.76rem; color: var(--text-muted); font-weight: 600; }
+  .table-wrap { overflow-x: hidden; }
+}
+
+/* Small mobile */
+@media (max-width: 420px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .button-row { flex-direction: column; align-items: stretch; }
+  .form-card { padding: var(--space-5) var(--space-4); }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar">
+  <div class="navbar__inner">
+    <button class="navbar__brand" data-nav="dashboard" type="button">
+      <span class="brand__mark" aria-hidden="true"></span>
+      TRACK<span class="brand__accent">ROOM</span>
+    </button>
+
+    <nav class="navbar__nav" id="primaryNav">
+      <button class="nav__link nav__link--active" data-nav="dashboard" data-scroll="dashboard" type="button">Dashboard</button>
+      <button class="nav__link" data-nav="dashboard" data-scroll="projects" type="button">Sessions</button>
+      <button class="nav__link" data-nav="dashboard" data-scroll="newsession" type="button">New Request</button>
+      <button class="nav__link" data-nav="dashboard" data-scroll="log" type="button">Session Log</button>
+
+      <div class="navbar__auth" id="guestActions">
+        <button class="nav__link" data-nav="login" type="button">Log in</button>
+        <button class="btn btn--primary btn--sm" data-nav="register" type="button">Register</button>
+      </div>
+
+      <div class="navbar__auth" id="userActions" hidden>
+        <span class="navbar__user" id="navUserName">Welcome back</span>
+        <button class="btn btn--ghost btn--sm" id="logoutBtn" type="button">Log out</button>
+      </div>
+    </nav>
+
+    <button class="navbar__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primaryNav">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ============ VIEW: DASHBOARD ============ -->
+<main id="view-dashboard">
+
+  <section class="dashboard" id="dashboard">
+    <div class="dashboard__heading">
+      <p class="eyebrow">Studio overview — this week</p>
+      <h1>Every fader, every deadline, one console.</h1>
+      <p class="dashboard__lede">Track live sessions, mix revisions and client sign-offs without leaving the room.</p>
+    </div>
+
+    <div class="stat-grid">
+      <article class="stat-card">
+        <div class="stat-card__top"><span class="stat-card__label">Active sessions</span><span class="stat-card__delta stat-card__delta--up">+3</span></div>
+        <p class="stat-card__value">08</p>
+        <div class="meter" aria-hidden="true">
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg"></span>
+          <span class="meter__seg"></span><span class="meter__seg"></span>
+        </div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-card__top"><span class="stat-card__label">Mixes rendered</span><span class="stat-card__delta stat-card__delta--up">+12</span></div>
+        <p class="stat-card__value">47</p>
+        <div class="meter" aria-hidden="true">
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg"></span>
+        </div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-card__top"><span class="stat-card__label">Studio hours logged</span><span class="stat-card__delta stat-card__delta--down">−2</span></div>
+        <p class="stat-card__value">126</p>
+        <div class="meter" aria-hidden="true">
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg"></span>
+          <span class="meter__seg"></span><span class="meter__seg"></span>
+          <span class="meter__seg"></span><span class="meter__seg"></span>
+        </div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-card__top"><span class="stat-card__label">Client sign-offs</span><span class="stat-card__delta stat-card__delta--up">+5</span></div>
+        <p class="stat-card__value">19</p>
+        <div class="meter" aria-hidden="true">
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg"></span><span class="meter__seg"></span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="projects">
+    <div class="section__head"><h2>Sessions in progress</h2><p>Live mix states across the current roster.</p></div>
+    <div class="card-grid">
+      <article class="project-card">
+        <div class="project-card__top"><span class="tag tag--mix">Mixing</span><span class="project-card__time">2h 40m today</span></div>
+        <h3>Vaanam Paartha — Rework</h3>
+        <p class="project-card__artist">Artist: Kavin R. · Genre: Film score</p>
+        <div class="progress" aria-label="72 percent complete"><div class="progress__fill" style="width:72%"></div></div>
+        <div class="project-card__foot"><span class="project-card__pct">72%</span><button class="btn btn--ghost btn--sm" type="button">Open session</button></div>
+      </article>
+      <article class="project-card">
+        <div class="project-card__top"><span class="tag tag--master">Mastering</span><span class="project-card__time">40m today</span></div>
+        <h3>Kanmani — Single</h3>
+        <p class="project-card__artist">Artist: Anu S. · Genre: Indie pop</p>
+        <div class="progress" aria-label="94 percent complete"><div class="progress__fill" style="width:94%"></div></div>
+        <div class="project-card__foot"><span class="project-card__pct">94%</span><button class="btn btn--ghost btn--sm" type="button">Open session</button></div>
+      </article>
+      <article class="project-card">
+        <div class="project-card__top"><span class="tag tag--review">Client review</span><span class="project-card__time">Awaiting notes</span></div>
+        <h3>Nadhi Osai — EP Track 3</h3>
+        <p class="project-card__artist">Artist: Studio 7 · Genre: Fusion</p>
+        <div class="progress" aria-label="55 percent complete"><div class="progress__fill" style="width:55%"></div></div>
+        <div class="project-card__foot"><span class="project-card__pct">55%</span><button class="btn btn--ghost btn--sm" type="button">Open session</button></div>
+      </article>
+      <article class="project-card">
+        <div class="project-card__top"><span class="tag tag--record">Recording</span><span class="project-card__time">Session at 6 PM</span></div>
+        <h3>Theru Kural — Demo</h3>
+        <p class="project-card__artist">Artist: Deva K. · Genre: Gaana</p>
+        <div class="progress" aria-label="20 percent complete"><div class="progress__fill" style="width:20%"></div></div>
+        <div class="project-card__foot"><span class="project-card__pct">20%</span><button class="btn btn--ghost btn--sm" type="button">Open session</button></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section section--split" id="newsession">
+    <div class="section__head"><h2>Request a new session</h2><p>Send your track details to the engineer roster — you'll get a confirmed slot within 24 hours.</p></div>
+    <form class="form-card" id="sessionForm">
+      <div class="form-row">
+        <div class="field"><label for="clientName">Your name</label><input type="text" id="clientName" name="clientName" placeholder="e.g. Priya Menon" required></div>
+        <div class="field"><label for="trackTitle">Track title</label><input type="text" id="trackTitle" name="trackTitle" placeholder="e.g. Mazhai Osai" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="sessionType">Session type</label>
+          <select id="sessionType" name="sessionType">
+            <option>Recording</option><option>Mixing</option><option>Mastering</option><option>Full production</option>
+          </select>
+        </div>
+        <div class="field"><label for="sessionDate">Preferred date</label><input type="date" id="sessionDate" name="sessionDate"></div>
+      </div>
+      <div class="field"><label for="notes">Notes for the engineer</label><textarea id="notes" name="notes" rows="4" placeholder="Reference tracks, tempo, mood, anything we should know before you walk in."></textarea></div>
+      <div class="field field--checkbox"><input type="checkbox" id="stems" name="stems"><label for="stems">I'll be bringing separated stems</label></div>
+      <div class="form-card__actions">
+        <button type="reset" class="btn btn--ghost">Clear form</button>
+        <button type="submit" class="btn btn--primary">Submit request</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="section">
+    <div class="section__head"><h2>Console controls</h2><p>Buttons used across the dashboard.</p></div>
+    <div class="button-row">
+      <button class="btn btn--primary" type="button">Primary action</button>
+      <button class="btn btn--secondary" type="button">Secondary</button>
+      <button class="btn btn--ghost" type="button">Ghost</button>
+      <button class="btn btn--danger" type="button">Cancel session</button>
+      <button class="btn btn--primary" type="button" disabled>Disabled</button>
+    </div>
+  </section>
+
+  <section class="section" id="log">
+    <div class="section__head"><h2>Session log</h2><p>Most recent bookings across all rooms.</p></div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Session</th><th>Engineer</th><th>Room</th><th>Duration</th><th>Format</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td data-label="Session">Vaanam Paartha — Rework</td><td data-label="Engineer">R. Suriya</td><td data-label="Room">Studio B</td>
+            <td data-label="Duration"><span class="mono">03:12:00</span></td><td data-label="Format">WAV 24-bit</td>
+            <td data-label="Status"><span class="status status--progress">In progress</span></td>
+          </tr>
+          <tr>
+            <td data-label="Session">Kanmani — Single</td><td data-label="Engineer">M. Iniya</td><td data-label="Room">Studio A</td>
+            <td data-label="Duration"><span class="mono">01:48:00</span></td><td data-label="Format">WAV 24-bit</td>
+            <td data-label="Status"><span class="status status--done">Delivered</span></td>
+          </tr>
+          <tr>
+            <td data-label="Session">Nadhi Osai — EP Track 3</td><td data-label="Engineer">R. Suriya</td><td data-label="Room">Studio C</td>
+            <td data-label="Duration"><span class="mono">02:05:00</span></td><td data-label="Format">WAV 32-bit</td>
+            <td data-label="Status"><span class="status status--review">In review</span></td>
+          </tr>
+          <tr>
+            <td data-label="Session">Theru Kural — Demo</td><td data-label="Engineer">A. Vidhya</td><td data-label="Room">Studio A</td>
+            <td data-label="Duration"><span class="mono">00:52:00</span></td><td data-label="Format">WAV 24-bit</td>
+            <td data-label="Status"><span class="status status--scheduled">Scheduled</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ VIEW: LOGIN ============ -->
+<main id="view-login" hidden>
+  <section class="auth-page">
+    <div class="auth-card">
+      <div class="auth-card__head">
+        <p class="eyebrow">Studio access</p>
+        <h1>Sign in to your console</h1>
+        <p>Pick up your sessions right where you left the fader.</p>
+      </div>
+      <div class="banner" id="loginBanner" role="alert" hidden></div>
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input type="text" id="loginEmail" name="loginEmail" placeholder="you@studio.com" autocomplete="email">
+          <span class="field-error" id="loginEmailError"></span>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" name="loginPassword" placeholder="Minimum 8 characters" autocomplete="current-password">
+          <span class="field-error" id="loginPasswordError"></span>
+        </div>
+        <div class="form-card__actions"><button type="submit" class="btn btn--primary">Sign in</button></div>
+      </form>
+      <p class="auth-card__foot">New to Track Room? <button type="button" data-nav="register">Create an account</button></p>
+    </div>
+  </section>
+</main>
+
+<!-- ============ VIEW: REGISTER ============ -->
+<main id="view-register" hidden>
+  <section class="auth-page">
+    <div class="auth-card">
+      <div class="auth-card__head">
+        <p class="eyebrow">Studio access</p>
+        <h1>Create your account</h1>
+        <p>Register once to book sessions, track mixes, and message your engineer.</p>
+      </div>
+      <div class="banner" id="registerBanner" role="alert" hidden></div>
+      <form id="registerForm" novalidate>
+        <div class="field">
+          <label for="regName">Full name</label>
+          <input type="text" id="regName" name="regName" placeholder="e.g. Priya Menon" autocomplete="name">
+          <span class="field-error" id="regNameError"></span>
+        </div>
+        <div class="field">
+          <label for="regEmail">Email</label>
+          <input type="text" id="regEmail" name="regEmail" placeholder="you@studio.com" autocomplete="email">
+          <span class="field-error" id="regEmailError"></span>
+        </div>
+        <div class="field">
+          <label for="regPhone">Phone number</label>
+          <input type="tel" id="regPhone" name="regPhone" placeholder="10-digit mobile number" autocomplete="tel">
+          <span class="field-error" id="regPhoneError"></span>
+        </div>
+        <div class="field">
+          <label for="regPassword">Password</label>
+          <input type="password" id="regPassword" name="regPassword" placeholder="Minimum 8 characters, with a number" autocomplete="new-password">
+          <span class="field-error" id="regPasswordError"></span>
+        </div>
+        <div class="field">
+          <label for="regConfirm">Confirm password</label>
+          <input type="password" id="regConfirm" name="regConfirm" placeholder="Re-enter your password" autocomplete="new-password">
+          <span class="field-error" id="regConfirmError"></span>
+        </div>
+        <div class="field field--checkbox field--terms">
+          <input type="checkbox" id="regTerms" name="regTerms">
+          <label for="regTerms">I agree to the studio's booking terms and cancellation policy</label>
+        </div>
+        <span class="field-error" id="regTermsError"></span>
+        <div class="form-card__actions"><button type="submit" class="btn btn--primary">Create account</button></div>
+      </form>
+      <p class="auth-card__foot">Already have an account? <button type="button" data-nav="login">Sign in</button></p>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <span>© 2026 Track Room Studio</span>
+    <span class="footer__meta">Single-file build · Client-side validation · No data leaves your browser</span>
+  </div>
+</footer>
+
+<script>
+/* ==========================================================================
+   View / navigation switching (SPA-style, single file)
+   ========================================================================== */
+const views = {
+  dashboard: document.getElementById('view-dashboard'),
+  login: document.getElementById('view-login'),
+  register: document.getElementById('view-register'),
+};
+
+function showView(name, scrollTargetId) {
+  Object.entries(views).forEach(([key, el]) => { el.hidden = key !== name; });
+  document.querySelectorAll('.nav__link[data-nav]').forEach(link => {
+    link.classList.toggle('nav__link--active', link.dataset.nav === name && !link.dataset.scroll || (link.dataset.scroll === scrollTargetId));
+  });
+  window.scrollTo({ top: 0 });
+  if (name === 'dashboard' && scrollTargetId) {
+    requestAnimationFrame(() => {
+      const target = document.getElementById(scrollTargetId);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+}
+
+document.querySelectorAll('[data-nav]').forEach(el => {
+  el.addEventListener('click', () => {
+    showView(el.dataset.nav, el.dataset.scroll);
+    primaryNav.classList.remove('is-open');
+    navToggle.setAttribute('aria-expanded', 'false');
+  });
+});
+
+/* Mobile nav toggle */
+const navToggle = document.getElementById('navToggle');
+const primaryNav = document.getElementById('primaryNav');
+navToggle.addEventListener('click', () => {
+  const isOpen = primaryNav.classList.toggle('is-open');
+  navToggle.setAttribute('aria-expanded', String(isOpen));
+});
+
+/* New-session form: demo-only, just confirms and resets */
+const sessionForm = document.getElementById('sessionForm');
+if (sessionForm) {
+  sessionForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    alert('Session request sent — the engineer roster will confirm your slot within 24 hours.');
+    sessionForm.reset();
+  });
+}
+
+/* ==========================================================================
+   Auth: localStorage-based accounts/session (demo only, no server)
+   ========================================================================== */
+const USERS_KEY = 'trackroomUsers';
+const SESSION_KEY = 'trackroomSession';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+const PHONE_RE = /^[6-9]\d{9}$/;
+const NAME_RE  = /^[A-Za-z][A-Za-z\s.'-]{1,}$/;
+
+function getUsers() { try { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; } catch { return []; } }
+function saveUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
+function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; } }
+function setSession(user) { localStorage.setItem(SESSION_KEY, JSON.stringify(user)); }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+
+function updateNav() {
+  const session = getSession();
+  const guestActions = document.getElementById('guestActions');
+  const userActions = document.getElementById('userActions');
+  const navUserName = document.getElementById('navUserName');
+  if (session && session.name) {
+    guestActions.hidden = true;
+    userActions.hidden = false;
+    navUserName.innerHTML = `Signed in as <strong>${escapeHtml(session.name.split(' ')[0])}</strong>`;
+  } else {
+    guestActions.hidden = false;
+    userActions.hidden = true;
+  }
+}
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  clearSession();
+  updateNav();
+  showView('dashboard');
+});
+
+function setFieldError(fieldId, message) {
+  const field = document.getElementById(fieldId);
+  const errorEl = document.getElementById(fieldId + 'Error');
+  if (field) { field.classList.add('is-invalid'); field.classList.remove('is-valid'); }
+  if (errorEl) errorEl.textContent = message;
+}
+function setFieldValid(fieldId) {
+  const field = document.getElementById(fieldId);
+  const errorEl = document.getElementById(fieldId + 'Error');
+  if (field) { field.classList.remove('is-invalid'); field.classList.add('is-valid'); }
+  if (errorEl) errorEl.textContent = '';
+}
+function clearFieldState(fieldId) {
+  const field = document.getElementById(fieldId);
+  const errorEl = document.getElementById(fieldId + 'Error');
+  if (field) field.classList.remove('is-invalid', 'is-valid');
+  if (errorEl) errorEl.textContent = '';
+}
+function showBanner(banner, type, message) {
+  if (!banner) return;
+  banner.hidden = false;
+  banner.className = 'banner banner--' + type;
+  banner.textContent = message;
+}
+function clearErrorOnInput(fieldIds) {
+  fieldIds.forEach(id => {
+    const field = document.getElementById(id);
+    if (field) field.addEventListener('input', () => clearFieldState(id));
+  });
+}
+
+/* ---- login ---- */
+clearErrorOnInput(['loginEmail', 'loginPassword']);
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  let valid = true;
+  const banner = document.getElementById('loginBanner');
+  banner.hidden = true;
+
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  if (!email) { setFieldError('loginEmail', 'Email is required.'); valid = false; }
+  else if (!EMAIL_RE.test(email)) { setFieldError('loginEmail', 'Enter a valid email address, e.g. you@studio.com'); valid = false; }
+  else setFieldValid('loginEmail');
+
+  if (!password) { setFieldError('loginPassword', 'Password is required.'); valid = false; }
+  else if (password.length < 8) { setFieldError('loginPassword', 'Password must be at least 8 characters.'); valid = false; }
+  else setFieldValid('loginPassword');
+
+  if (!valid) {
+    showBanner(banner, 'error', 'Please fix the errors below before signing in.');
+    const invalid = e.target.querySelector('.is-invalid');
+    if (invalid) invalid.focus();
+    return;
+  }
+
+  const users = getUsers();
+  const match = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+  if (!match) {
+    showBanner(banner, 'error', 'No account matches that email and password. Check your details, or register below.');
+    return;
+  }
+
+  setSession({ name: match.name, email: match.email });
+  showBanner(banner, 'success', `Welcome back, ${match.name.split(' ')[0]}! Redirecting to your dashboard…`);
+  e.target.reset();
+  updateNav();
+  setTimeout(() => showView('dashboard'), 1100);
+});
+
+/* ---- register ---- */
+clearErrorOnInput(['regName', 'regEmail', 'regPhone', 'regPassword', 'regConfirm']);
+document.getElementById('registerForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  let valid = true;
+  const banner = document.getElementById('registerBanner');
+  banner.hidden = true;
+
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const phoneRaw = document.getElementById('regPhone').value.trim();
+  const phone = phoneRaw.replace(/\D/g, '').slice(-10);
+  const password = document.getElementById('regPassword').value;
+  const confirm = document.getElementById('regConfirm').value;
+  const terms = document.getElementById('regTerms').checked;
+  const termsError = document.getElementById('regTermsError');
+
+  if (!name) { setFieldError('regName', 'Full name is required.'); valid = false; }
+  else if (!NAME_RE.test(name)) { setFieldError('regName', 'Enter your name using letters only (min 2 characters).'); valid = false; }
+  else setFieldValid('regName');
+
+  const users = getUsers();
+  if (!email) { setFieldError('regEmail', 'Email is required.'); valid = false; }
+  else if (!EMAIL_RE.test(email)) { setFieldError('regEmail', 'Enter a valid email address, e.g. you@studio.com'); valid = false; }
+  else if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) { setFieldError('regEmail', 'An account with this email already exists. Try logging in instead.'); valid = false; }
+  else setFieldValid('regEmail');
+
+  if (!phoneRaw) { setFieldError('regPhone', 'Phone number is required.'); valid = false; }
+  else if (!PHONE_RE.test(phone)) { setFieldError('regPhone', 'Enter a valid 10-digit mobile number.'); valid = false; }
+  else setFieldValid('regPhone');
+
+  if (!password) { setFieldError('regPassword', 'Password is required.'); valid = false; }
+  else if (password.length < 8) { setFieldError('regPassword', 'Password must be at least 8 characters.'); valid = false; }
+  else if (!/\d/.test(password)) { setFieldError('regPassword', 'Include at least one number in your password.'); valid = false; }
+  else setFieldValid('regPassword');
+
+  if (!confirm) { setFieldError('regConfirm', 'Please confirm your password.'); valid = false; }
+  else if (confirm !== password) { setFieldError('regConfirm', 'Passwords do not match.'); valid = false; }
+  else setFieldValid('regConfirm');
+
+  if (!terms) { termsError.textContent = 'You must accept the studio terms to continue.'; valid = false; }
+  else termsError.textContent = '';
+
+  if (!valid) {
+    showBanner(banner, 'error', 'Please fix the errors below to create your account.');
+    const invalid = e.target.querySelector('.is-invalid');
+    if (invalid) invalid.focus();
+    return;
+  }
+
+  users.push({ name, email, phone, password });
+  saveUsers(users);
+  setSession({ name, email });
+
+  showBanner(banner, 'success', `Account created — welcome to Track Room, ${name.split(' ')[0]}! Redirecting…`);
+  e.target.reset();
+  updateNav();
+  setTimeout(() => showView('dashboard'), 1100);
+});
+
+/* init */
+updateNav();
+</script>
+</body>
+</html>
