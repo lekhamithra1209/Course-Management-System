@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Room — Session Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar">
+  <div class="navbar__inner">
+    <a href="#" class="navbar__brand">
+      <span class="brand__mark" aria-hidden="true"></span>
+      TRACK<span class="brand__accent">ROOM</span>
+    </a>
+
+    <nav class="navbar__nav" id="primaryNav">
+      <a href="#dashboard" class="nav__link nav__link--active">Dashboard</a>
+      <a href="#projects" class="nav__link">Sessions</a>
+      <a href="#newsession" class="nav__link">New Request</a>
+      <a href="#log" class="nav__link">Session Log</a>
+    </nav>
+
+    <div class="navbar__actions">
+      <button class="btn btn--ghost btn--sm">Sign in</button>
+      <button class="btn btn--primary btn--sm">Book a session</button>
+    </div>
+
+    <button class="navbar__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primaryNav">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ DASHBOARD HEADER / STATS ============ -->
+  <section class="dashboard" id="dashboard">
+    <div class="dashboard__heading">
+      <p class="eyebrow">Studio overview — this week</p>
+      <h1>Every fader, every deadline, one console.</h1>
+      <p class="dashboard__lede">Track live sessions, mix revisions and client sign-offs without leaving the room.</p>
+    </div>
+
+    <div class="stat-grid">
+
+      <article class="stat-card">
+        <div class="stat-card__top">
+          <span class="stat-card__label">Active sessions</span>
+          <span class="stat-card__delta stat-card__delta--up">+3</span>
+        </div>
+        <p class="stat-card__value">08</p>
+        <div class="meter" aria-hidden="true">
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg"></span>
+          <span class="meter__seg"></span><span class="meter__seg"></span>
+        </div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-card__top">
+          <span class="stat-card__label">Mixes rendered</span>
+          <span class="stat-card__delta stat-card__delta--up">+12</span>
+        </div>
+        <p class="stat-card__value">47</p>
+        <div class="meter" aria-hidden="true">
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg"></span>
+        </div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-card__top">
+          <span class="stat-card__label">Studio hours logged</span>
+          <span class="stat-card__delta stat-card__delta--down">−2</span>
+        </div>
+        <p class="stat-card__value">126</p>
+        <div class="meter" aria-hidden="true">
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg"></span>
+          <span class="meter__seg"></span><span class="meter__seg"></span>
+          <span class="meter__seg"></span><span class="meter__seg"></span>
+        </div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-card__top">
+          <span class="stat-card__label">Client sign-offs</span>
+          <span class="stat-card__delta stat-card__delta--up">+5</span>
+        </div>
+        <p class="stat-card__value">19</p>
+        <div class="meter" aria-hidden="true">
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg meter__seg--on"></span><span class="meter__seg meter__seg--on"></span>
+          <span class="meter__seg"></span><span class="meter__seg"></span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ PROJECT CARDS ============ -->
+  <section class="section" id="projects">
+    <div class="section__head">
+      <h2>Sessions in progress</h2>
+      <p>Live mix states across the current roster.</p>
+    </div>
+
+    <div class="card-grid">
+
+      <article class="project-card">
+        <div class="project-card__top">
+          <span class="tag tag--mix">Mixing</span>
+          <span class="project-card__time">2h 40m today</span>
+        </div>
+        <h3>Vaanam Paartha — Rework</h3>
+        <p class="project-card__artist">Artist: Kavin R. · Genre: Film score</p>
+        <div class="progress" aria-label="72 percent complete">
+          <div class="progress__fill" style="width:72%"></div>
+        </div>
+        <div class="project-card__foot">
+          <span class="project-card__pct">72%</span>
+          <button class="btn btn--ghost btn--sm">Open session</button>
+        </div>
+      </article>
+
+      <article class="project-card">
+        <div class="project-card__top">
+          <span class="tag tag--master">Mastering</span>
+          <span class="project-card__time">40m today</span>
+        </div>
+        <h3>Kanmani — Single</h3>
+        <p class="project-card__artist">Artist: Anu S. · Genre: Indie pop</p>
+        <div class="progress" aria-label="94 percent complete">
+          <div class="progress__fill" style="width:94%"></div>
+        </div>
+        <div class="project-card__foot">
+          <span class="project-card__pct">94%</span>
+          <button class="btn btn--ghost btn--sm">Open session</button>
+        </div>
+      </article>
+
+      <article class="project-card">
+        <div class="project-card__top">
+          <span class="tag tag--review">Client review</span>
+          <span class="project-card__time">Awaiting notes</span>
+        </div>
+        <h3>Nadhi Osai — EP Track 3</h3>
+        <p class="project-card__artist">Artist: Studio 7 · Genre: Fusion</p>
+        <div class="progress" aria-label="55 percent complete">
+          <div class="progress__fill" style="width:55%"></div>
+        </div>
+        <div class="project-card__foot">
+          <span class="project-card__pct">55%</span>
+          <button class="btn btn--ghost btn--sm">Open session</button>
+        </div>
+      </article>
+
+      <article class="project-card">
+        <div class="project-card__top">
+          <span class="tag tag--record">Recording</span>
+          <span class="project-card__time">Session at 6 PM</span>
+        </div>
+        <h3>Theru Kural — Demo</h3>
+        <p class="project-card__artist">Artist: Deva K. · Genre: Gaana</p>
+        <div class="progress" aria-label="20 percent complete">
+          <div class="progress__fill" style="width:20%"></div>
+        </div>
+        <div class="project-card__foot">
+          <span class="project-card__pct">20%</span>
+          <button class="btn btn--ghost btn--sm">Open session</button>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ NEW SESSION FORM ============ -->
+  <section class="section section--split" id="newsession">
+    <div class="section__head">
+      <h2>Request a new session</h2>
+      <p>Send your track details to the engineer roster — you'll get a confirmed slot within 24 hours.</p>
+    </div>
+
+    <form class="form-card" action="#" method="post">
+      <div class="form-row">
+        <div class="field">
+          <label for="clientName">Your name</label>
+          <input type="text" id="clientName" name="clientName" placeholder="e.g. Priya Menon" required>
+        </div>
+        <div class="field">
+          <label for="trackTitle">Track title</label>
+          <input type="text" id="trackTitle" name="trackTitle" placeholder="e.g. Mazhai Osai" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="sessionType">Session type</label>
+          <select id="sessionType" name="sessionType">
+            <option>Recording</option>
+            <option>Mixing</option>
+            <option>Mastering</option>
+            <option>Full production</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="sessionDate">Preferred date</label>
+          <input type="date" id="sessionDate" name="sessionDate">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="notes">Notes for the engineer</label>
+        <textarea id="notes" name="notes" rows="4" placeholder="Reference tracks, tempo, mood, anything we should know before you walk in."></textarea>
+      </div>
+
+      <div class="field field--checkbox">
+        <input type="checkbox" id="stems" name="stems">
+        <label for="stems">I'll be bringing separated stems</label>
+      </div>
+
+      <div class="form-card__actions">
+        <button type="reset" class="btn btn--ghost">Clear form</button>
+        <button type="submit" class="btn btn--primary">Submit request</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ============ BUTTON SHOWCASE ============ -->
+  <section class="section">
+    <div class="section__head">
+      <h2>Console controls</h2>
+      <p>Buttons used across the dashboard.</p>
+    </div>
+    <div class="button-row">
+      <button class="btn btn--primary">Primary action</button>
+      <button class="btn btn--secondary">Secondary</button>
+      <button class="btn btn--ghost">Ghost</button>
+      <button class="btn btn--danger">Cancel session</button>
+      <button class="btn btn--primary" disabled>Disabled</button>
+    </div>
+  </section>
+
+  <!-- ============ SESSION LOG TABLE ============ -->
+  <section class="section" id="log">
+    <div class="section__head">
+      <h2>Session log</h2>
+      <p>Most recent bookings across all rooms.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Engineer</th>
+            <th>Room</th>
+            <th>Duration</th>
+            <th>Format</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="Session">Vaanam Paartha — Rework</td>
+            <td data-label="Engineer">R. Suriya</td>
+            <td data-label="Room">Studio B</td>
+            <td data-label="Duration"><span class="mono">03:12:00</span></td>
+            <td data-label="Format">WAV 24-bit</td>
+            <td data-label="Status"><span class="status status--progress">In progress</span></td>
+          </tr>
+          <tr>
+            <td data-label="Session">Kanmani — Single</td>
+            <td data-label="Engineer">M. Iniya</td>
+            <td data-label="Room">Studio A</td>
+            <td data-label="Duration"><span class="mono">01:48:00</span></td>
+            <td data-label="Format">WAV 24-bit</td>
+            <td data-label="Status"><span class="status status--done">Delivered</span></td>
+          </tr>
+          <tr>
+            <td data-label="Session">Nadhi Osai — EP Track 3</td>
+            <td data-label="Engineer">R. Suriya</td>
+            <td data-label="Room">Studio C</td>
+            <td data-label="Duration"><span class="mono">02:05:00</span></td>
+            <td data-label="Format">WAV 32-bit</td>
+            <td data-label="Status"><span class="status status--review">In review</span></td>
+          </tr>
+          <tr>
+            <td data-label="Session">Theru Kural — Demo</td>
+            <td data-label="Engineer">A. Vidhya</td>
+            <td data-label="Room">Studio A</td>
+            <td data-label="Duration"><span class="mono">00:52:00</span></td>
+            <td data-label="Format">WAV 24-bit</td>
+            <td data-label="Status"><span class="status status--scheduled">Scheduled</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <span>© 2026 Track Room Studio</span>
+    <span class="footer__meta">Built with external CSS · Flexbox &amp; Grid · Responsive layout</span>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
